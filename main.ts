@@ -5,10 +5,12 @@
  * generated for an **exported** function.
  */
 
-//% color="#AA278D" weight=100 block="Wachine Machine"
+//% color="#AA278D" weight=100
+//% block="Wachine Machine"
+//% groups=['Programs','Aux']
 namespace WashingMachine {
     //% group="Programs"
-    //% block="Spin Cycle"
+    //% block="Spin laundry at |%speed|speed"
     //% weight=100
     export function SpinCycle(speed: number): void {
         motor.MotorRun(motor.Motors.M1, motor.Dir.CW, speed)
@@ -23,6 +25,5 @@ namespace WashingMachine {
         motor.motorStop(motor.Motors.M1)
         basic.pause(2000)
     }
-
 
 }
