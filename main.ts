@@ -1,4 +1,3 @@
-//%block="Washing Machine"
 namespace WashingMachine {
 
     /**
@@ -35,6 +34,7 @@ namespace WashingMachine {
      * () doorButton may have reversed logic, what would require a unification in readButton
      * () Add pause/resume button - this one should use events
      * () Buttons mappings to be checked
+     * () Convert old WM project to use this extension
      * (3) Add abort function e.x. by long-press of stopButton - to stop complex sequences
      * (OK) Bit sizes (int8, int16 ..) are not supported inside class methods. No other restrictions are known.
      * 
@@ -213,6 +213,20 @@ namespace WashingMachine {
         speedA: number;
         speedB: number;
         
+        constructor(mode: modOpt, noSteps: number, stepTime: number, direction: dirOpt, speedA: number, speedB: number){
+
+            this.mode = mode;
+            this.noSteps = noSteps;
+            this.stepTime = stepTime;
+            this.direction = direction;
+            this.speedA = speedA;
+            this.speedB = speedB;
+        }
+
+        /**
+         * @function    executePattern  This function execute created Pattern, at the moment three pre-defined patterns are available:
+         *                              Pulse, Step and Pyramid.
+         */
         //%block="Execute %myPattern program"
         public executePattern(): void {
             
@@ -253,8 +267,8 @@ namespace WashingMachine {
             let speed: number;
             let deltaSpeed: number = (this.speedB - this.speedA) / this.noSteps; //!< deltaSpeed can be positive and negative
 
-            for (let i = this.noSteps; i > 0; i--) {
-                speed = (this.noSteps - i) * deltaSpeed + this.speedA;
+            for (let j = this.noSteps; j > 0; j--) {
+                speed = (this.noSteps - j) * deltaSpeed + this.speedA;
                 runMotor(this.direction, speed);
                 this.completeSegment();
             }
@@ -262,8 +276,8 @@ namespace WashingMachine {
         }
 
         completeSegment(): void {
-            let startTstamp = control.millis();
-            while (monitorUserStop() && runCountdown(startTstamp, this.stepTime));
+            let startTstamp2 = control.millis();
+            while (monitorUserStop() && runCountdown(startTstamp2, this.stepTime));
         }
 
         switchSpeeds(): void {
@@ -275,26 +289,20 @@ namespace WashingMachine {
     }
 
     /**
-     * Function exposing User Pattern constructor 
+     * Factory function exposing User Pattern constructor 
      */
     //% block="%mode pattern with %noSteps segments,  each segment %stepTime [s] long. || Spin %direction with speeds between %speedA and %speedB"
     //% direction.defl = dirOpt.clockwise
+    //% speedA.defl = 0
+    //% speedB.defl = 255
     //% speedA.min=0 speedA.max=255
     //% speedB.min=0 speedB.max=255
     //% blockSetVariable=myPattern
     //% inlineInputMode=inline
     export function createPattern(mode: modOpt, noSteps: number, stepTime: number, direction?: dirOpt, speedA?: number, speedB?: number): SpinPattern {
     
-        let MyPattern = new SpinPattern();
-        
-        MyPattern.mode = mode;
-        MyPattern.noSteps = noSteps;
-        MyPattern.stepTime = stepTime;
-        MyPattern.direction = direction;
-        MyPattern.speedA = speedA;
-        MyPattern.speedB = speedB;
-        
-        return MyPattern;
+        return new SpinPattern(mode, noSteps, stepTime, direction, speedA, speedB);
+
     }
 
-}//namespace
+}
