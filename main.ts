@@ -29,6 +29,7 @@ namespace WashingMachine {
      * () Explore shadowing
      * () Explore static variables
      * () Pyramid peak has double the segment time
+     * () Add slider where speeds are selected
      * (4) Should Patterns be coded as classes? Can functions do the same? Any benefits from classes here? Try to refactor to take advantage of OOP
      * check this thread https://stackoverflow.com/questions/6480676/why-use-classes-instead-of-functions
      * () doorButton may have reversed logic, what would require a unification in readButton
@@ -130,6 +131,7 @@ namespace WashingMachine {
     //% block="Spin %direction with speed %speed for %spintime seconds.|| At the end: %stopCmd"
     //% inlineInputMode=inline
     //% stopCmd.defl=brakeOpt.brake
+    //% speed.min=0 speed.max=255
     export function SpinMe(direction: dirOpt, speed: number, spinTime: number, stopCmd?: brakeOpt): void {
 
         runMotor(direction, speed);
@@ -277,8 +279,8 @@ namespace WashingMachine {
      */
     //% block="%mode pattern with %noSteps segments,  each segment %stepTime [s] long. || Spin %direction with speeds between %speedA and %speedB"
     //% direction.defl = dirOpt.clockwise
-    //% speedA.defl = 0
-    //% speedB.defl = 255
+    //% speedA.min=0 speedA.max=255
+    //% speedB.min=0 speedB.max=255
     //% blockSetVariable=myPattern
     //% inlineInputMode=inline
     export function createPattern(mode: modOpt, noSteps: number, stepTime: number, direction?: dirOpt, speedA?: number, speedB?: number): SpinPattern {
