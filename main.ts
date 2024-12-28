@@ -24,8 +24,10 @@ namespace WashingMachine {
      * (OK) Dependencies: DF-Driver added to dependencies in 'Project Settings'
      * () Explore control lib: background tasks scheduling and events
      * () At the moment all functions/APIs are blocking - can be rewritten to return a state variable that will allow User to add extra code after calling APIs
-     * () Callbacks?
-     * () Explore shadowing
+     * () Callbacks
+     * () Auto created variable
+     * () Add getters/setters for Pattern program to modify single params of the Pattern
+     * () Explore shadowing - used for custom value pickers
      * () Explore static variables
      * () Pyramid peak has double the segment time
      * () Add slider where speeds are selected
@@ -227,7 +229,8 @@ namespace WashingMachine {
          * @function    executePattern  This function execute created Pattern, at the moment three pre-defined patterns are available:
          *                              Pulse, Step and Pyramid.
          */
-        //%block="Execute %myPattern program"
+        //%block="Execute $this program"
+        //%this.defl=myPattern
         public executePattern(): void {
             
             switch(this.mode){
