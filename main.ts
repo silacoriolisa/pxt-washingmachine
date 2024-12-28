@@ -3,30 +3,39 @@ namespace WashingMachine {
 
     /**
      * *****************************************************************************************************************************************
-
-     * Each Program should be defined within a separate function in the main project.
-     * Each Program can consist of forward (CW) and backward (CCW) phases with braking in between if spinning direction has changed.
-     * Including braking is a User responsibility.
-     * A special spinning patterns like pulse and pyramid patterns are provided as blocks for auto execution - no need to define a function. 
-     * Each spinning pattern auto updates the timer and reacts to stopButton.
-     * Aborting the program will abort the countdown timer and clear the display.
+     * This extension provides the control block for a custom made washing machine toy. The toy has been reworked so that it is entirely controlled
+     * by BBC:microbit. This extension operates on Programs and Patterns. 
      * 
+     * Each Program should be defined within a separate function in the main project.
+     * Each Program can consist of forward (CW) and backward (CCW) movement phases with braking in between if spinning direction has changed.
+     * Including braking is a User responsibility.
+     * 
+     * A special spinning Patterns like pulse and pyramid staris/patterns are provided as blocks for auto execution - no need to define a function. 
+     * Each spinning Pattern (similarly to Programs) auto updates the timer and reacts to stopButton.
+     * Aborting the program will abort the countdown timer and clear the display. At the moment a User can only abort a single phase of Program/Pattern.
+     * 
+     * Exposed blocks:
+     * readButton(button: buttonsNames): number
+     * SpinMe(direction: dirOpt, speed: number, spinTime: number, stopCmd?: brakeOpt): void
+     * createPattern(mode: modOpt, noSteps: number, stepTime: number, direction?: dirOpt, speedA?: number, speedB?: number): SpinPattern
+     * executePattern(): void
      * *****************************************************************************************************************************************
      * Left to do:
-     * (1) Use doxygen style comments - check what is missing - is the doc generated in github?
-     * Dependencies - DF-Driver - how to assure it is always added?
-     * Explore control lib: background tasks scheduling and events
-     * Explore shadowing
-     * Explore static variables
-     * (2) Should steps and pyramid patterns (generally complex patterns) use program class? can be functions as well, no benefits from classes here
-     * (3) How to handle functions/classes with many parameters? A structure should be used to pass the params? Use lots of defaults?
-     * (4) doorButton may have reversed logic, what would require a unification in readButton
-     * (5) Add pause/resume button - this one should use events
-     * Buttons mappings to be checked
-     * (6) Add abort function e.x. by long-press of stopButton - to stop complex sequences
-     * (0) Check Pyramid definition - add full and half pyramid options, add direction option: climb or descend
-     * (-1) Resolve github sync issues
-     * (7) For some reason intX types cannot be used - check it
+     * (1) Use doxygen style comments - explore github actions and doxygen generation
+     * (OK) Dependencies: DF-Driver added to dependencies in 'Project Settings'
+     * () Explore control lib: background tasks scheduling and events
+     * () At the moment all functions/APIs are blocking - can be rewritten to return a state variable that will allow User to add extra code after calling APIs
+     * () Callbacks?
+     * () Explore shadowing
+     * () Explore static variables
+     * () Pyramid peak has double the segment time
+     * (4) Should Patterns be coded as classes? Can functions do the same? Any benefits from classes here? Try to refactor to take advantage of OOP
+     * check this thread https://stackoverflow.com/questions/6480676/why-use-classes-instead-of-functions
+     * () doorButton may have reversed logic, what would require a unification in readButton
+     * () Add pause/resume button - this one should use events
+     * () Buttons mappings to be checked
+     * (3) Add abort function e.x. by long-press of stopButton - to stop complex sequences
+     * (OK) Bit sizes (int8, int16 ..) are not supported inside class methods. No other restrictions are known.
      * 
      */
 
@@ -35,8 +44,7 @@ namespace WashingMachine {
      * Global variables section
      */
 
-    let lastDigit: number = 0; //This variable is used to store last display value of countdown timer to prevent too often display refreshing
-
+    let lastDigit: number = 0; //This variable is used to store last display value of countdown timer to prevent too quick display refreshing
 
     /**
      * *****************************************************************************************************************************************
@@ -57,9 +65,9 @@ namespace WashingMachine {
 
     //This enum lists braking options
     export enum brakeOpt {
-        //%block="breaking"
+        //%block="brake"
         brake,
-        //%block="no breaking"
+        //%block="don't brake"
         nobrake
     }
 
@@ -69,6 +77,16 @@ namespace WashingMachine {
         clockwise,
         //%block="counter clockwise"
         cclockwise
+    }
+
+    //This enum lists Pattern execution options
+    export enum modOpt {
+        //%block="pulse"
+        pulse,
+        //%block="steps"
+        steps,
+        //%block="pyramid"
+        pyramid
     }
 
     /**
@@ -109,7 +127,7 @@ namespace WashingMachine {
      * @param       spinTime    Value in [s]
      * @param       stopCmd     Brake or nobrake selector. This parameter is optional with default value = brake (in case not given explicitly)
      */
-    //% block="Spin %direction with speed %speed for %spintime seconds || Braking: %stopCmd"
+    //% block="Spin %direction with speed %speed for %spintime seconds.|| At the end: %stopCmd"
     //% inlineInputMode=inline
     //% stopCmd.defl=brakeOpt.brake
     export function SpinMe(direction: dirOpt, speed: number, spinTime: number, stopCmd?: brakeOpt): void {
@@ -184,50 +202,97 @@ namespace WashingMachine {
      * *****************************************************************************************************************************************
      * Classes section
      */
-    export class SpinPyramid {
-        private noSteps: number;
-        private stepTime: number;
-        private direction: dirOpt;
-        private speedMin: number;
-        private speedMax: number;
-
-        private halfFullSwitch: boolean;
-        private ascendDescendSwitch: boolean;
-
-        constructor(noSteps: number, stepTime: number, direction: dirOpt, speedMin: number, speedMax: number) {
-            this.noSteps = noSteps;
-            this.stepTime = stepTime;
-            this.direction = direction;
-            this.speedMin = speedMin;
-            this.speedMax = speedMax;
-        }
-
-        //%block="Execute %MyPyramid program"
-        public executePyramid(): void {
-            let speed: number;
-            let deltaSpeed: number = (this.speedMax - this.speedMin) / this.noSteps;
-
-            for (let i = this.noSteps; i > 0; i--) {
-                speed = (this.noSteps - i) * deltaSpeed + this.speedMin;
-                runMotor(this.direction, speed);
-                let startTstamp = control.millis();
-                while (monitorUserStop() && runCountdown(startTstamp, this.stepTime));
+    export class SpinPattern {
+        
+        mode: modOpt;
+        noSteps: number;
+        stepTime: number;
+        direction: dirOpt;
+        speedA: number;
+        speedB: number;
+        
+        //%block="Execute %myPattern program"
+        public executePattern(): void {
+            
+            switch(this.mode){
+                case modOpt.pulse:
+                break;
+                case modOpt.steps:
+                    this.executeSteps();
+                break;
+                case modOpt.pyramid:
+                break;
             }
+
             motor.motorStop(motor.Motors.M1);
             basic.clearScreen();
 
         }
 
+        executePyramid(){
+            this.executeSteps();
+            this.switchSpeeds();
+            this.executeSteps(); //the flaw of this simple apporach is that at peak of the pyramid segment time is doubled
+            this.switchSpeeds();
+
+        }
+
+        executePulse(){
+            for (let i = this.noSteps; i>0; i--) {
+                runMotor(this.direction, this.speedA);
+                this.completeSegment();
+                runMotor(this.direction, this.speedB);
+                this.completeSegment();
+            }
+        }
+
+        executeSteps(){
+            
+            let speed: number;
+            let deltaSpeed: number = (this.speedB - this.speedA) / this.noSteps; //!< deltaSpeed can be positive and negative
+
+            for (let i = this.noSteps; i > 0; i--) {
+                speed = (this.noSteps - i) * deltaSpeed + this.speedA;
+                runMotor(this.direction, speed);
+                this.completeSegment();
+            }
+            
+        }
+
+        completeSegment(): void {
+            let startTstamp = control.millis();
+            while (monitorUserStop() && runCountdown(startTstamp, this.stepTime));
+        }
+
+        switchSpeeds(): void {
+            let temp = this.speedA;
+            this.speedA = this.speedB;
+            this.speedB = temp;
+        }
+
     }
 
     /**
-     * Function exposing pyramid pattern constructor 
+     * Function exposing User Pattern constructor 
      */
-    //% block="newPyramid"
-    //% blockSetVariable=myPyramid
-    export function createPyramid(noSteps: number, stepTime: number, direction: dirOpt, speedMin: number, speedMax: number): SpinPyramid {
-        let MyPyramid = new SpinPyramid(noSteps, stepTime, direction, speedMin, speedMax);
-        return MyPyramid;
+    //% block="%mode pattern with %noSteps segments,  each segment %stepTime [s] long. || Spin %direction with speeds between %speedA and %speedB"
+    //% direction.defl = dirOpt.clockwise
+    //% speedA.defl = 0
+    //% speedB.defl = 255
+    //% blockSetVariable=myPattern
+    //% inlineInputMode=inline
+    export function createPattern(mode: modOpt, noSteps: number, stepTime: number, direction?: dirOpt, speedA?: number, speedB?: number): SpinPattern {
+    
+        let MyPattern = new SpinPattern();
+        
+        MyPattern.mode = mode;
+        MyPattern.noSteps = noSteps;
+        MyPattern.stepTime = stepTime;
+        MyPattern.direction = direction;
+        MyPattern.speedA = speedA;
+        MyPattern.speedB = speedB;
+        
+        return MyPattern;
     }
 
 }//namespace
