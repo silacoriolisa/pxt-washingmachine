@@ -23,9 +23,12 @@ namespace WashingMachine {
      * (1) Use doxygen style comments - explore github actions and doxygen generation
      * (OK) Dependencies: DF-Driver added to dependencies in 'Project Settings'
      * () Explore control lib: background tasks scheduling and events
+     * () Modify enums to directly link button ports
      * () At the moment all functions/APIs are blocking - can be rewritten to return a state variable that will allow User to add extra code after calling APIs
      * () Callbacks
      * () Auto created variable
+     * () Test.ts
+     * () Is all the code exposed, possibly pxt is missing (not exposed) but it is available on GitHub
      * () Add getters/setters for Pattern program to modify single params of the Pattern
      * () Explore shadowing - used for custom value pickers
      * () Explore static variables
@@ -108,10 +111,10 @@ namespace WashingMachine {
 
         switch (button) {
             case buttonsNames.startButton:
-                buttonCode = 12;
+                buttonCode = 8;
                 break;
             case buttonsNames.stopButton:
-                buttonCode = 13;
+                buttonCode = 15;
                 break;
             case buttonsNames.doorButton:
                 buttonCode = 16;
