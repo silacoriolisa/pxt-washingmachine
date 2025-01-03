@@ -23,13 +23,11 @@ namespace WashingMachine {
      * (1) Use doxygen style comments - explore github actions and doxygen generation
      * (OK) Dependencies: DF-Driver added to dependencies in 'Project Settings'
      * () Explore control lib: background tasks scheduling and events
-     * () Modify enums to directly link button ports
+     * () Modify enums to directly link button ports - there's bunch of weird enums defined on top of runtime, to be checked
      * () At the moment all functions/APIs are blocking - can be rewritten to return a state variable that will allow User to add extra code after calling APIs
-     * () Callbacks
+     * () Callbacks - added for button presses
      * () Auto created variable
      * () Test.ts
-     * () Is all the code exposed, possibly pxt is missing (not exposed) but it is available on GitHub
-     * () Add getters/setters for Pattern program to modify single params of the Pattern
      * () Explore shadowing - used for custom value pickers
      * () Explore static variables
      * () Pyramid peak has double the segment time
@@ -38,7 +36,7 @@ namespace WashingMachine {
      * check this thread https://stackoverflow.com/questions/6480676/why-use-classes-instead-of-functions
      * () doorButton may have reversed logic, what would require a unification in readButton
      * () Add pause/resume button - this one should use events
-     * () Buttons mappings to be checked
+     * (OK) Buttons mappings to be checked
      * () Convert old WM project to use this extension
      * (3) Add abort function e.x. by long-press of stopButton - to stop complex sequences
      * (OK) Bit sizes (int8, int16 ..) are not supported inside class methods. No other restrictions are known.
@@ -50,8 +48,8 @@ namespace WashingMachine {
      * Global variables section
      */
 
-    let lastDigit: number = 0; //This variable is used to store last display value of countdown timer to prevent too quick display refreshing
-
+    let lastDigit: number = 0;      //!<This variable is used to store last display value of countdown timer to prevent too quick display refreshing
+    let userStop: boolean = false;  //!<This variable is used to detect a User pressed the stopButton
     /**
      * *****************************************************************************************************************************************
      * Enums section
@@ -97,6 +95,43 @@ namespace WashingMachine {
 
     /**
      * *****************************************************************************************************************************************
+     * Interface section
+     */
+
+    let startButton = pins.P8;
+    let stopButton = pins.P15;
+    let pauseButton = pins.P12;
+    let doorButton = pins.P16;
+    
+    startButton.setPull(PinPullMode.PullUp);
+    stopButton.setPull( PinPullMode.PullUp);
+    pauseButton.setPull(PinPullMode.PullUp);
+    doorButton.setPull( PinPullMode.PullUp);
+
+    //pins.setEvents(DigitalPin.P8,  PinEventType.Edge);
+    pins.setEvents(DigitalPin.P15, PinEventType.Edge);
+    //pins.setEvents(DigitalPin.P12, PinEventType.Edge);
+    pins.setEvents(DigitalPin.P16, PinEventType.Edge);
+
+    function stopButton_h() {
+        userStop = true;
+    }
+
+    function pauseButton_h() {
+        //TO DO
+    }
+
+    function doorButton_h() {
+        userStop = true;    //!<With this it becomes undistinguishable if it's a button press or door opening that stopped the cycle. 
+    }
+
+    //control.onEvent(EventBusSource.MICROBIT_ID_IO_P8, DAL.MICROBIT_PIN_EVT_RISE,  startButton_h);
+    control.onEvent(EventBusSource.MICROBIT_ID_IO_P15, DAL.MICROBIT_PIN_EVT_RISE, stopButton_h );
+    //control.onEvent(EventBusSource.MICROBIT_ID_IO_P12, DAL.MICROBIT_PIN_EVT_RISE, pauseButton_h);
+    control.onEvent(EventBusSource.MICROBIT_ID_IO_P16, DAL.MICROBIT_PIN_EVT_RISE, doorButton_h );
+
+    /**
+     * *****************************************************************************************************************************************
      * Functions section
      */
 
@@ -107,22 +142,21 @@ namespace WashingMachine {
      */
     //%block = "Check the %button button"
     export function readButton(button: buttonsNames): number {
-        let buttonCode: number;
-
+        
         switch (button) {
             case buttonsNames.startButton:
-                buttonCode = 8;
+                return pins.digitalReadPin(DigitalPin.P8);
                 break;
             case buttonsNames.stopButton:
-                buttonCode = 15;
+                return pins.digitalReadPin(DigitalPin.P15);
                 break;
             case buttonsNames.doorButton:
-                buttonCode = 16;
+                return pins.digitalReadPin(DigitalPin.P16);
                 break;
-
+            default:
+                return 0;   //!< could be missleading as 0 is one of the possible pin state, though using NaN could result in unknown behavior/exception
         }
 
-        return pins.digitalReadPin(buttonCode);
     }
 
     /**
@@ -139,11 +173,12 @@ namespace WashingMachine {
     //% speed.min=0 speed.max=255
     export function SpinMe(direction: dirOpt, speed: number, spinTime: number, stopCmd?: brakeOpt): void {
 
+        basic.showNumber(spinTime);
         runMotor(direction, speed);
         let startTstamp = control.millis();
         while (monitorUserStop() && runCountdown(startTstamp, spinTime));
 
-        motor.motorStop(motor.Motors.M1);
+        motor.motorStop(motor.Motors.M1);   //!<Not sure if this is needed or should be included in the if statement below
         if (stopCmd == brakeOpt.brake) {
             basic.pause(1800); //An arbitrary time interval to fully stop the motor.
         }
@@ -157,6 +192,7 @@ namespace WashingMachine {
      * @param       speed       Speed as a number in <0, 255> range
      */
     function runMotor(direction: dirOpt, speed: number): void {
+        userStop = false;   //!<This is needed as it is unknown if a User did pressed a button or not
         switch (direction) {
             case dirOpt.clockwise:
                 motor.MotorRun(motor.Motors.M1, motor.Dir.CW, speed);
@@ -198,11 +234,8 @@ namespace WashingMachine {
     /**
      * @function    monitorUserStop Function that returns the boolean that corresponds to logical state of stopButton
      */
-    function monitorUserStop(): boolean {
-        if (readButton(buttonsNames.stopButton))
-            return false;
-        else
-            return true;
+    function monitorUserStop(): boolean {       
+       return userStop;
     }
 
     /**
@@ -254,7 +287,7 @@ namespace WashingMachine {
         executePyramid(){
             this.executeSteps();
             this.switchSpeeds();
-            this.executeSteps(); //the flaw of this simple apporach is that at peak of the pyramid segment time is doubled
+            this.executeSteps(); //!<The flaw of this simple apporach is that at peak of the pyramid segment time is doubled
             this.switchSpeeds();
 
         }
@@ -271,7 +304,7 @@ namespace WashingMachine {
         executeSteps(){
             
             let speed: number;
-            let deltaSpeed: number = (this.speedB - this.speedA) / this.noSteps; //!< deltaSpeed can be positive and negative
+            let deltaSpeed: number = (this.speedB - this.speedA) / this.noSteps; //!<deltaSpeed can be positive and negative
 
             for (let j = this.noSteps; j > 0; j--) {
                 speed = (this.noSteps - j) * deltaSpeed + this.speedA;
@@ -283,6 +316,7 @@ namespace WashingMachine {
 
         completeSegment(): void {
             let startTstamp2 = control.millis();
+            basic.showNumber(this.stepTime); //!< Check if no interference occured after having added it
             while (monitorUserStop() && runCountdown(startTstamp2, this.stepTime));
         }
 
