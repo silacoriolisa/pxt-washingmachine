@@ -151,10 +151,10 @@ namespace WashingMachine {
                 return pins.digitalReadPin(DigitalPin.P15);
                 break;
             case buttonsNames.doorButton:
-                return pins.digitalReadPin(DigitalPin.P16);
+                return ~pins.digitalReadPin(DigitalPin.P16); 
                 break;
             default:
-                return 0;   //!< could be missleading as 0 is one of the possible pin state, though using NaN could result in unknown behavior/exception
+                return 1;   //!< could be missleading as 0 is one of the possible pin state, though using NaN could result in unknown behavior/exception
         }
 
     }
