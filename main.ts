@@ -303,9 +303,11 @@ namespace WashingMachine {
 
         executePulse(){
             for (let i = this.noSteps; i>0; i--) {
-                runMotor( (this.direction = dirOpt.clockwise ? dirOpt.clockwise : dirOpt.cclockwise), this.speedA);
+                //runMotor( (this.direction = dirOpt.clockwise ? dirOpt.clockwise : dirOpt.cclockwise), this.speedA);
+                runMotor(this.direction, this.speedA);
                 this.completeSegment();
-                runMotor( (this.direction = dirOpt.clockwise ? dirOpt.clockwise : dirOpt.cclockwise), this.speedB);
+                //runMotor( (this.direction = dirOpt.clockwise ? dirOpt.clockwise : dirOpt.cclockwise), this.speedB);
+                runMotor(this.direction, this.speedB);
                 this.completeSegment();
             }
         }
