@@ -181,7 +181,7 @@ namespace WashingMachine {
         basic.showNumber(spinTime);
         runMotor(direction, speed);
         let startTstamp = control.millis();
-        while (monitorUserStop() && runCountdown(startTstamp, spinTime));
+        while ( (!monitorUserStop()) && runCountdown(startTstamp, spinTime));
 
         motor.motorStop(motor.Motors.M1);   //!<Not sure if this is needed or should be included in the if statement below
         if (stopCmd == brakeOpt.brake) {
