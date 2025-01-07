@@ -151,7 +151,10 @@ namespace WashingMachine {
                 return pins.digitalReadPin(DigitalPin.P15);
                 break;
             case buttonsNames.doorButton:
-                return ~pins.digitalReadPin(DigitalPin.P16); 
+                if (pins.digitalReadPin(DigitalPin.P16) == 1)
+                    return 0;
+                else
+                    return 1; 
                 break;
             default:
                 return 1;   //!< could be missleading as 0 is one of the possible pin state, though using NaN could result in unknown behavior/exception
