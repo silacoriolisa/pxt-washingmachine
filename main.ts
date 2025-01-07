@@ -78,9 +78,9 @@ namespace WashingMachine {
     //This enum lists the washing machine spinning direction
     export enum dirOpt {
         //%block="clockwise"
-        clockwise,
+        clockwise = 1,
         //%block="counter clockwise"
-        cclockwise
+        cclockwise = -1
     }
 
     //This enum lists Pattern execution options
@@ -199,9 +199,9 @@ namespace WashingMachine {
     function runMotor(direction: dirOpt, speed: number): void {
         userStop = false;   //!<This is needed as it is unknown if a User did pressed a button or not
         switch (direction) {
-            case dirOpt.clockwise:
+            case 1:
                 motor.MotorRun(motor.Motors.M1, motor.Dir.CW, speed);
-            case dirOpt.cclockwise:
+            case -1:
                 motor.MotorRun(motor.Motors.M1, motor.Dir.CCW, speed);
                 break;
         }
