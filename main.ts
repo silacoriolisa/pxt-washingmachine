@@ -108,13 +108,14 @@ namespace WashingMachine {
     pauseButton.setPull(PinPullMode.PullNone);
     doorButton.setPull( PinPullMode.PullNone);
 
+/*
     //pins.setEvents(DigitalPin.P8,  PinEventType.Edge);
     pins.setEvents(DigitalPin.P15, PinEventType.Edge);
     //pins.setEvents(DigitalPin.P12, PinEventType.Edge);
     pins.setEvents(DigitalPin.P16, PinEventType.Edge);
 
     function stopButton_h() {
-        userStop = true;
+        //userStop = true;
     }
 
     function pauseButton_h() {
@@ -122,14 +123,14 @@ namespace WashingMachine {
     }
 
     function doorButton_h() {
-        userStop = true;    //!<With this it becomes undistinguishable if it's a button press or door opening that stopped the cycle. 
+        //userStop = true;    //!<With this it becomes undistinguishable if it's a button press or door opening that stopped the cycle. 
     }
 
     //control.onEvent(EventBusSource.MICROBIT_ID_IO_P8, DAL.MICROBIT_PIN_EVT_RISE,  startButton_h);
-    control.onEvent(EventBusSource.MICROBIT_ID_IO_P15, DAL.MICROBIT_PIN_EVT_RISE, stopButton_h );
     //control.onEvent(EventBusSource.MICROBIT_ID_IO_P12, DAL.MICROBIT_PIN_EVT_RISE, pauseButton_h);
+    control.onEvent(EventBusSource.MICROBIT_ID_IO_P15, DAL.MICROBIT_PIN_EVT_RISE, stopButton_h);
     control.onEvent(EventBusSource.MICROBIT_ID_IO_P16, DAL.MICROBIT_PIN_EVT_RISE, doorButton_h );
-
+*/
     /**
      * *****************************************************************************************************************************************
      * Functions section
@@ -138,7 +139,8 @@ namespace WashingMachine {
     /**
      * @function    readButton  Returns selected button state through digital pin reading.
      * @param       button      Name of the button
-     * @returns                 State of the button which corresponds to its logical state i.e. 1 or 0
+     * @returns                 State of the button which corresponds to its logical state i.e. 1 or 0 (pressed). Doors button has reverse logic,
+     *                          though this function alignes its with the other buttons
      */
     //%block = "Check the %button button"
     export function readButton(button: buttonsNames): number {
