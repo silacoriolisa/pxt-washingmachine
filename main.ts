@@ -321,9 +321,9 @@ namespace WashingMachine {
         }
 
         completeSegment(): void {
-            let startTstamp2 = control.millis();
+            let startTstamp = control.millis();
             basic.showNumber(this.stepTime); //!< Check if no interference occured after having added it
-            while (monitorUserStop() && runCountdown(startTstamp2, this.stepTime));
+            while ( (!monitorUserStop()) && runCountdown(startTstamp, this.stepTime));
         }
 
         switchSpeeds(): void {
