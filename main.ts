@@ -199,9 +199,10 @@ namespace WashingMachine {
     function runMotor(direction: dirOpt, speed: number): void {
         userStop = false;   //!<This is needed as it is unknown if a User did pressed a button or not
         switch (direction) {
-            case 1:
+            case dirOpt.clockwise:
                 motor.MotorRun(motor.Motors.M1, motor.Dir.CW, speed);
-            case -1:
+                break;
+            case dirOpt.cclockwise:
                 motor.MotorRun(motor.Motors.M1, motor.Dir.CCW, speed);
                 break;
         }
