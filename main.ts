@@ -205,7 +205,10 @@ namespace WashingMachine {
             case dirOpt.cclockwise:
                 motor.MotorRun(motor.Motors.M1, motor.Dir.CCW, speed);
                 break;
+            default:
+                basic.showString("Err");
         }
+        
     }
 
     /**
@@ -300,9 +303,9 @@ namespace WashingMachine {
 
         executePulse(){
             for (let i = this.noSteps; i>0; i--) {
-                runMotor(this.direction, this.speedA);
+                runMotor( (this.direction = dirOpt.clockwise ? dirOpt.clockwise : dirOpt.cclockwise), this.speedA);
                 this.completeSegment();
-                runMotor(this.direction, this.speedB);
+                runMotor( (this.direction = dirOpt.clockwise ? dirOpt.clockwise : dirOpt.cclockwise), this.speedB);
                 this.completeSegment();
             }
         }
@@ -314,7 +317,7 @@ namespace WashingMachine {
 
             for (let j = this.noSteps; j > 0; j--) {
                 speed = (this.noSteps - j) * deltaSpeed + this.speedA;
-                runMotor(this.direction, speed);
+                runMotor( (this.direction = dirOpt.clockwise? dirOpt.clockwise : dirOpt.cclockwise), speed);
                 this.completeSegment();
             }
             
