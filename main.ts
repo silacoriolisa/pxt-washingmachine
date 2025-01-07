@@ -335,7 +335,9 @@ namespace WashingMachine {
         completeSegment(): void {
             let startTstamp = control.millis();
             basic.showNumber(this.stepTime); //!< Check if no interference occured after having added it
+            pins.setEvents(digitalPinButtons.DigitalButtonStop, PinEventType.Edge);//<!Sets the listener for the Stop button
             while ( (!monitorUserStop()) && runCountdown(startTstamp, this.stepTime));
+            pins.setEvents(digitalPinButtons.DigitalButtonStop, PinEventType.None);
         }
 
         switchSpeeds(): void {
