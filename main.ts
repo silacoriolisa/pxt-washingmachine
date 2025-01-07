@@ -93,6 +93,9 @@ namespace WashingMachine {
         pyramid
     }
 
+    enum digitalPinButtons {
+        DigitalButtonStop = DigitalPin.P15
+    }
     /**
      * *****************************************************************************************************************************************
      * Interface section
@@ -108,14 +111,14 @@ namespace WashingMachine {
     pauseButton.setPull(PinPullMode.PullNone);
     doorButton.setPull( PinPullMode.PullNone);
 
-/*
+
     //pins.setEvents(DigitalPin.P8,  PinEventType.Edge);
-    pins.setEvents(DigitalPin.P15, PinEventType.Edge);
+    pins.setEvents(DigitalPin.P15, PinEventType.None);
     //pins.setEvents(DigitalPin.P12, PinEventType.Edge);
-    pins.setEvents(DigitalPin.P16, PinEventType.Edge);
+    //pins.setEvents(DigitalPin.P16, PinEventType.Edge);
 
     function stopButton_h() {
-        //userStop = true;
+        userStop = true;
     }
 
     function pauseButton_h() {
@@ -128,9 +131,8 @@ namespace WashingMachine {
 
     //control.onEvent(EventBusSource.MICROBIT_ID_IO_P8, DAL.MICROBIT_PIN_EVT_RISE,  startButton_h);
     //control.onEvent(EventBusSource.MICROBIT_ID_IO_P12, DAL.MICROBIT_PIN_EVT_RISE, pauseButton_h);
+    //control.onEvent(EventBusSource.MICROBIT_ID_IO_P16, DAL.MICROBIT_PIN_EVT_RISE, doorButton_h );
     control.onEvent(EventBusSource.MICROBIT_ID_IO_P15, DAL.MICROBIT_PIN_EVT_RISE, stopButton_h);
-    control.onEvent(EventBusSource.MICROBIT_ID_IO_P16, DAL.MICROBIT_PIN_EVT_RISE, doorButton_h );
-*/
     /**
      * *****************************************************************************************************************************************
      * Functions section
@@ -181,8 +183,9 @@ namespace WashingMachine {
         basic.showNumber(spinTime);
         runMotor(direction, speed);
         let startTstamp = control.millis();
+        pins.setEvents(digitalPinButtons.DigitalButtonStop, PinEventType.Edge);//<!Sets the listener for the Stop button
         while ( (!monitorUserStop()) && runCountdown(startTstamp, spinTime));
-
+        pins.setEvents(digitalPinButtons.DigitalButtonStop, PinEventType.None);//<!Deregisters Stop button callback
         motor.motorStop(motor.Motors.M1);   //!<Not sure if this is needed or should be included in the if statement below
         if (stopCmd == brakeOpt.brake) {
             basic.pause(1800); //An arbitrary time interval to fully stop the motor.
@@ -305,6 +308,7 @@ namespace WashingMachine {
 
         executePulse(){
             for (let i = this.noSteps; i>0; i--) {
+                basic.showString("X" + i);
                 //runMotor( (this.direction = dirOpt.clockwise ? dirOpt.clockwise : dirOpt.cclockwise), this.speedA);
                 runMotor(this.direction, this.speedA);
                 this.completeSegment();
