@@ -280,11 +280,13 @@ namespace WashingMachine {
             
             switch(this.mode){
                 case modOpt.pulse:
+                    this.executePulse();
                 break;
                 case modOpt.steps:
                     this.executeSteps();
                 break;
                 case modOpt.pyramid:
+                    this.executePyramid();
                 break;
             }
 
