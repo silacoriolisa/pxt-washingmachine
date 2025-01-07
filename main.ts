@@ -317,7 +317,8 @@ namespace WashingMachine {
 
             for (let j = this.noSteps; j > 0; j--) {
                 speed = (this.noSteps - j) * deltaSpeed + this.speedA;
-                runMotor( (this.direction = dirOpt.clockwise? dirOpt.clockwise : dirOpt.cclockwise), speed);
+                //runMotor( (this.direction = dirOpt.clockwise? dirOpt.clockwise : dirOpt.cclockwise), speed);
+                runMotor(this.direction, speed);
                 this.completeSegment();
             }
             
