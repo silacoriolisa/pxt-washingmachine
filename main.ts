@@ -103,10 +103,10 @@ namespace WashingMachine {
     let pauseButton = pins.P12;
     let doorButton = pins.P16;
     
-    startButton.setPull(PinPullMode.PullUp);
-    stopButton.setPull( PinPullMode.PullUp);
-    pauseButton.setPull(PinPullMode.PullUp);
-    doorButton.setPull( PinPullMode.PullUp);
+    startButton.setPull(PinPullMode.PullNone);
+    stopButton.setPull( PinPullMode.PullNone);
+    pauseButton.setPull(PinPullMode.PullNone);
+    doorButton.setPull( PinPullMode.PullNone);
 
     //pins.setEvents(DigitalPin.P8,  PinEventType.Edge);
     pins.setEvents(DigitalPin.P15, PinEventType.Edge);
