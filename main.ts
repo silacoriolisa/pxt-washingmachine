@@ -3,15 +3,16 @@ namespace WashingMachine {
     /**
      * *****************************************************************************************************************************************
      * This extension provides the control block for a custom made washing machine toy. The toy has been reworked so that it is entirely controlled
-     * by BBC:microbit. This extension operates on Programs and Patterns. 
+     * by BBC:microbit. This extension operates on Programs and Patterns, what is explained down below. 
      * 
      * Each Program should be defined within a separate function in the main project.
      * Each Program can consist of forward (CW) and backward (CCW) movement phases with braking in between if spinning direction has changed.
-     * Including braking is a User responsibility.
+     * Including braking is a User responsibility. Not braking when spinning direction changes may lead to hardware damage.
      * 
-     * A special spinning Patterns like pulse and pyramid staris/patterns are provided as blocks for auto execution - no need to define a function. 
-     * Each spinning Pattern (similarly to Programs) auto updates the timer and reacts to stopButton.
+     * A special spinning Patterns like step, pulse and pyramid patterns are provided as blocks for auto execution - no need to define a function. 
+     * Each spinning Pattern (similarly to Programs) auto updates the timer and reacts to stop button.
      * Aborting the program will abort the countdown timer and clear the display. At the moment a User can only abort a single phase of Program/Pattern.
+     * As a consequence pressing a stop button once, will only abort the current phase. To abort the whole program, User has to press stop as many times as there are phases.
      * 
      * Exposed blocks:
      * readButton(button: buttonsNames): number
@@ -20,25 +21,25 @@ namespace WashingMachine {
      * executePattern(): void
      * *****************************************************************************************************************************************
      * Left to do:
-     * (1) Use doxygen style comments - explore github actions and doxygen generation
+     * () Use doxygen style comments - explore github actions and doxygen generation
      * (OK) Dependencies: DF-Driver added to dependencies in 'Project Settings'
      * () Explore control lib: background tasks scheduling and events
      * () Modify enums to directly link button ports - there's bunch of weird enums defined on top of runtime, to be checked
      * () At the moment all functions/APIs are blocking - can be rewritten to return a state variable that will allow User to add extra code after calling APIs
-     * () Callbacks - added for button presses
-     * () Auto created variable
-     * () Test.ts
+     * (OK) Callbacks - added for button presses, only one added at the moment, but the general scheme is clear and tested
+     * (-) Auto created variable - no such need in this library
+     * (OK) Test.ts - Ok for very rough testing or passing through program checkpoints, debug mode is though not available
      * () Explore shadowing - used for custom value pickers
      * () Explore static variables
      * () Pyramid peak has double the segment time
-     * () Add slider where speeds are selected
-     * (4) Should Patterns be coded as classes? Can functions do the same? Any benefits from classes here? Try to refactor to take advantage of OOP
+     * () Add slider where speeds are selected - not always work, the same as for defaults - works for SpinMe, not for creatting Pattern
+     * () Should Patterns be coded as classes? Can functions do the same? Any benefits from classes here? Try to refactor to take advantage of OOP
      * check this thread https://stackoverflow.com/questions/6480676/why-use-classes-instead-of-functions
-     * () doorButton may have reversed logic, what would require a unification in readButton
+     * (OK) doorButton may have reversed logic, what would require a unification in readButton - Done
      * () Add pause/resume button - this one should use events
      * (OK) Buttons mappings to be checked
      * () Convert old WM project to use this extension
-     * (3) Add abort function e.x. by long-press of stopButton - to stop complex sequences
+     * () Add abort function e.x. by long-press of stopButton - to stop complex sequences
      * (OK) Bit sizes (int8, int16 ..) are not supported inside class methods. No other restrictions are known.
      * 
      */
